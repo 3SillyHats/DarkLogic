@@ -84,9 +84,9 @@ func (s *SQT) Scale(x, y, z float64) {
 // transformation matrix suitable for OpenGL rendering.
 func (s *SQT) Matrix() [16]float32 {
 	return [16]float32{
-		float32((1 - 2*s.qy*s.qy - 2*s.qz*s.qz) * s.sx), float32(2*s.qx*s.qy - 2*s.qz*s.qw), float32(2*s.qx*s.qz + 2*s.qy*s.qw), float32(s.tx),
-		float32(2*s.qx*s.qy + 2*s.qz*s.qw), float32((1 - 2*s.qx*s.qx - 2*s.qz*s.qz) * s.sy), float32(2*s.qy*s.qz - 2*s.qx*s.qw), float32(s.ty),
-		float32(2*s.qx*s.qz - 2*s.qy*s.qw), float32(2*s.qy*s.qz + 2*s.qx*s.qw), float32((1 - 2*s.qx*s.qx - 2*s.qy*s.qy) * s.sz), float32(s.tz),
+		float32((1 - 2*s.qy*s.qy - 2*s.qz*s.qz) * s.sx), float32((2*s.qx*s.qy - 2*s.qz*s.qw) * s.sy), float32((2*s.qx*s.qz + 2*s.qy*s.qw) * s.sz), float32(s.tx),
+		float32((2*s.qx*s.qy + 2*s.qz*s.qw) * s.sx), float32((1 - 2*s.qx*s.qx - 2*s.qz*s.qz) * s.sy), float32((2*s.qy*s.qz - 2*s.qx*s.qw) * s.sz), float32(s.ty),
+		float32((2*s.qx*s.qz - 2*s.qy*s.qw) * s.sx), float32((2*s.qy*s.qz + 2*s.qx*s.qw) * s.sy), float32((1 - 2*s.qx*s.qx - 2*s.qy*s.qy) * s.sz), float32(s.tz),
 		0, 0, 0, 1,
 	}
 }
