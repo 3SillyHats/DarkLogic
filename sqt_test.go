@@ -225,6 +225,21 @@ func checkTransform(
 	if diff(zp[:], mz[:]) > 1e-16 {
 		t.Error(operation + " did not return expected transformation for z for " + desc)
 	}
+
+	xppx, xppy, xppz := s.Transform(1, 0, 0)
+	if math.Abs(xppx-xpx) > 1e-15 || math.Abs(xppy-xpy) > 1e-15 || math.Abs(xppz-xpz) > 1e-15 {
+		t.Error(operation + " did not transform x as expected for " + desc)
+	}
+
+	yppx, yppy, yppz := s.Transform(0, 1, 0)
+	if math.Abs(yppx-ypx) > 1e-15 || math.Abs(yppy-ypy) > 1e-15 || math.Abs(yppz-ypz) > 1e-15 {
+		t.Error(operation + " did not transform y as expected for " + desc)
+	}
+
+	zppx, zppy, zppz := s.Transform(0, 0, 1)
+	if math.Abs(zppx-zpx) > 1e-15 || math.Abs(zppy-zpy) > 1e-15 || math.Abs(zppz-zpz) > 1e-15 {
+		t.Error(operation + " did not transform z as expected for " + desc)
+	}
 }
 
 func diff(a, b []float32) float32 {

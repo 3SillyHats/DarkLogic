@@ -80,6 +80,22 @@ func (s *SQT) Scale(x, y, z float64) {
 	s.sz *= z
 }
 
+// Transform applys the SQT transformation to the input vector (ix, iy, iz),
+// producing the output vector (ox, oy, oz) (equivalent to premultiplying by s.Matrix())
+func (s *SQT) Transform(ix, iy, iz float64) (ox, oy, oz float64) {
+	sx := ix * s.sx
+	sy := iy * s.sy
+	sz := iz * s.sz
+
+	x, y, z, w := qmult(sx, sy, sz, 0, -s.qx, -s.qy, -s.qz, s.qw)
+	rx, ry, rz, _ := qmult(s.qx, s.qy, s.qz, s.qw, x, y, z, w)
+
+	ox = rx + s.tx
+	oy = ry + s.ty
+	oz = rz + s.tz
+	return
+}
+
 // Matrix returns a representation of the SQT transformation as an affine
 // transformation matrix suitable for OpenGL rendering.
 func (s *SQT) Matrix() [16]float32 {
