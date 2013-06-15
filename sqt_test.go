@@ -118,42 +118,42 @@ func TestTranslate(t *testing.T) {
 
 func TestScale(t *testing.T) {
 	s := NewSQT()
-	s.SetScale(2, 1, 1)
-	checkTransform(t, "SetScale", "(*2, *1, *1)", s,
+	s.SetScale(2)
+	checkTransform(t, "SetScale", "*2", s,
 		[16]float32{
 			2, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
+			0, 2, 0, 0,
+			0, 0, 2, 0,
 			0, 0, 0, 1,
 		},
 		2, 0, 0,
-		0, 1, 0,
-		0, 0, 1,
+		0, 2, 0,
+		0, 0, 2,
 	)
 
-	s.SetScale(2, 3, 0.5)
-	checkTransform(t, "SetScale", "(*2, *3, /2)", s,
+	s.SetScale(0.5)
+	checkTransform(t, "SetScale", "/2", s,
 		[16]float32{
-			2, 0, 0, 0,
-			0, 3, 0, 0,
+			0.5, 0, 0, 0,
+			0, 0.5, 0, 0,
 			0, 0, 0.5, 0,
 			0, 0, 0, 1,
 		},
-		2, 0, 0,
-		0, 3, 0,
+		0.5, 0, 0,
+		0, 0.5, 0,
 		0, 0, 0.5,
 	)
 
-	s.Scale(0.5, 2, 3)
-	checkTransform(t, "Scale", "(*2, *3, /2) then (/2, *2, *3)", s,
+	s.Scale(3)
+	checkTransform(t, "Scale", "/2 then *3", s,
 		[16]float32{
-			1, 0, 0, 0,
-			0, 6, 0, 0,
+			1.5, 0, 0, 0,
+			0, 1.5, 0, 0,
 			0, 0, 1.5, 0,
 			0, 0, 0, 1,
 		},
-		1, 0, 0,
-		0, 6, 0,
+		1.5, 0, 0,
+		0, 1.5, 0,
 		0, 0, 1.5,
 	)
 }

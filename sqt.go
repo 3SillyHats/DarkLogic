@@ -7,15 +7,15 @@ import (
 // SQT represents a transformation consisting of a scaling factor in each axis,
 // a rotation and a translation.
 type SQT struct {
-	sx, sy, sz     float64
-	qx, qy, qz, qw float64
-	tx, ty, tz     float64
+	scale          float64 // scaling factor
+	qx, qy, qz, qw float64 // rotation
+	tx, ty, tz     float64 // translation
 }
 
 // NewSQT creates a new identity transformation.
 func NewSQT() *SQT {
 	return &SQT{
-		1, 1, 1,
+		1,
 		0, 0, 0, 1,
 		0, 0, 0,
 	}
@@ -39,10 +39,8 @@ func (s *SQT) SetTranslation(x, y, z float64) {
 }
 
 // SetScale sets the scale of the SQT transformation in each axis.
-func (s *SQT) SetScale(x, y, z float64) {
-	s.sx = x
-	s.sy = y
-	s.sz = z
+func (s *SQT) SetScale(scale float64) {
+	s.scale = scale
 }
 
 // qmult calculates the Grassman product of two quaternions.
@@ -74,18 +72,16 @@ func (s *SQT) Translate(x, y, z float64) {
 }
 
 // Scale adds another scaling factor to each axis in the SQT transformation.
-func (s *SQT) Scale(x, y, z float64) {
-	s.sx *= x
-	s.sy *= y
-	s.sz *= z
+func (s *SQT) Scale(scale float64) {
+	s.scale *= scale
 }
 
 // Transform applys the SQT transformation to the input vector (ix, iy, iz),
 // producing the output vector (ox, oy, oz) (equivalent to premultiplying by s.Matrix())
 func (s *SQT) Transform(ix, iy, iz float64) (ox, oy, oz float64) {
-	sx := ix * s.sx
-	sy := iy * s.sy
-	sz := iz * s.sz
+	sx := ix * s.scale
+	sy := iy * s.scale
+	sz := iz * s.scale
 
 	x, y, z, w := qmult(sx, sy, sz, 0, -s.qx, -s.qy, -s.qz, s.qw)
 	rx, ry, rz, _ := qmult(s.qx, s.qy, s.qz, s.qw, x, y, z, w)
@@ -100,9 +96,9 @@ func (s *SQT) Transform(ix, iy, iz float64) (ox, oy, oz float64) {
 // transformation matrix suitable for OpenGL rendering.
 func (s *SQT) Matrix() [16]float32 {
 	return [16]float32{
-		float32((1 - 2*s.qy*s.qy - 2*s.qz*s.qz) * s.sx), float32((2*s.qx*s.qy - 2*s.qz*s.qw) * s.sy), float32((2*s.qx*s.qz + 2*s.qy*s.qw) * s.sz), float32(s.tx),
-		float32((2*s.qx*s.qy + 2*s.qz*s.qw) * s.sx), float32((1 - 2*s.qx*s.qx - 2*s.qz*s.qz) * s.sy), float32((2*s.qy*s.qz - 2*s.qx*s.qw) * s.sz), float32(s.ty),
-		float32((2*s.qx*s.qz - 2*s.qy*s.qw) * s.sx), float32((2*s.qy*s.qz + 2*s.qx*s.qw) * s.sy), float32((1 - 2*s.qx*s.qx - 2*s.qy*s.qy) * s.sz), float32(s.tz),
+		float32((1 - 2*s.qy*s.qy - 2*s.qz*s.qz) * s.scale), float32((2*s.qx*s.qy - 2*s.qz*s.qw) * s.scale), float32((2*s.qx*s.qz + 2*s.qy*s.qw) * s.scale), float32(s.tx),
+		float32((2*s.qx*s.qy + 2*s.qz*s.qw) * s.scale), float32((1 - 2*s.qx*s.qx - 2*s.qz*s.qz) * s.scale), float32((2*s.qy*s.qz - 2*s.qx*s.qw) * s.scale), float32(s.ty),
+		float32((2*s.qx*s.qz - 2*s.qy*s.qw) * s.scale), float32((2*s.qy*s.qz + 2*s.qx*s.qw) * s.scale), float32((1 - 2*s.qx*s.qx - 2*s.qy*s.qy) * s.scale), float32(s.tz),
 		0, 0, 0, 1,
 	}
 }
