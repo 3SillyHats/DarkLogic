@@ -92,6 +92,15 @@ func (s *SQT) Transform(ix, iy, iz float64) (ox, oy, oz float64) {
 	return
 }
 
+// Commpose returns the SQT transformation representing the application of first transform, then s
+func (s *SQT) Compose(transform *SQT) (o *SQT) {
+	o = NewSQT()
+	o.scale = transform.scale * s.scale
+	o.qx, o.qy, o.qz, o.qw = qmult(s.qx, s.qy, s.qz, s.qw, transform.qx, transform.qy, transform.qz, transform.qw)
+	o.tx, o.ty, o.tz = s.Transform(transform.tx, transform.ty, transform.tz)
+	return
+}
+
 // Matrix returns a representation of the SQT transformation as an affine
 // transformation matrix suitable for OpenGL rendering.
 func (s *SQT) Matrix() [16]float32 {

@@ -162,33 +162,69 @@ func TestOrder(t *testing.T) {
 	s := NewSQT()
 	s.SetRotation(math.Pi/2, 1, 0, 0)
 	s.SetTranslation(2, 1, -3)
-	s.SetScale(0.5, 3, -1)
-	checkTransform(t, "SQT", "rotation by pi/2 about x, translation by (+2, +1, -3) and scale by (/2, *3, *-1)", s,
+	s.SetScale(-1)
+	checkTransform(t, "SQT", "rotation by pi/2 about x, translation by (+2, +1, -3) and scale by *-1", s,
 		[16]float32{
-			0.5, 0, 0, 2,
+			-1, 0, 0, 2,
 			0, 0, 1, 1,
-			0, 3, 0, -3,
+			0, -1, 0, -3,
 			0, 0, 0, 1,
 		},
-		2.5, 1, -3,
-		2, 1, 0,
+		1, 1, -3,
+		2, 1, -4,
 		2, 2, -3,
 	)
 
 	s.SetRotation(3*math.Pi/2, 0, 1, 0)
 	s.SetTranslation(0, 4, 0)
-	s.SetScale(1, -2, 5)
-	checkTransform(t, "SQT", "rotation by 3pi/2 about y, translation by (0, +4, +0) and scale by (*1, *-2, *5)", s,
+	s.SetScale(5)
+	checkTransform(t, "SQT", "rotation by 3pi/2 about y, translation by (0, +4, +0) and scale by *5", s,
 		[16]float32{
 			0, 0, -5, 0,
-			0, -2, 0, 4,
-			1, 0, 0, 0,
+			0, 5, 0, 4,
+			5, 0, 0, 0,
 			0, 0, 0, 1,
 		},
-		0, 4, 1,
-		0, 2, 0,
+		0, 4, 5,
+		0, 9, 0,
 		-5, 4, 0,
 	)
+}
+
+func TestCompose(t *testing.T) {
+	s1 := NewSQT()
+	s1.SetRotation(math.Pi/2, 1, 0, 0)
+	s1.SetTranslation(2, 1, -3)
+	s1.SetScale(0.5)
+
+	s2 := NewSQT()
+	s2.SetRotation(3*math.Pi/2, 0, 1, 0)
+	s2.SetTranslation(0, 4, 0)
+	s2.SetScale(-3)
+
+	s3 := s2.Compose(s1)
+
+	x1x, x1y, x1z := s1.Transform(1, 0, 0)
+	y1x, y1y, y1z := s1.Transform(0, 1, 0)
+	z1x, z1y, z1z := s1.Transform(0, 0, 1)
+
+	x2x, x2y, x2z := s2.Transform(x1x, x1y, x1z)
+	y2x, y2y, y2z := s2.Transform(y1x, y1y, y1z)
+	z2x, z2y, z2z := s2.Transform(z1x, z1y, z1z)
+
+	x3x, x3y, x3z := s3.Transform(1, 0, 0)
+	y3x, y3y, y3z := s3.Transform(0, 1, 0)
+	z3x, z3y, z3z := s3.Transform(0, 0, 1)
+
+	if math.Abs(x3x-x2x) > 1e-14 || math.Abs(x3y-x2y) > 1e-14 || math.Abs(x3z-x2z) > 1e-14 {
+		t.Errorf("%s %d,%d,%d", "Compose did not transform x the same as sequential transformation", math.Abs(x2x-x3x), math.Abs(x2y-x3y), math.Abs(x2z-x3z))
+	}
+	if math.Abs(y3x-y2x) > 1e-14 || math.Abs(y3y-y2y) > 1e-14 || math.Abs(y3z-y2z) > 1e-14 {
+		t.Errorf("%s %d,%d,%d", "Compose did not transform y the same as sequential transformation", math.Abs(y2x-y3x), math.Abs(y2y-y3y), math.Abs(y2z-y3z))
+	}
+	if math.Abs(z3x-z2x) > 1e-14 || math.Abs(z3y-z2y) > 1e-14 || math.Abs(z3z-z2z) > 1e-14 {
+		t.Errorf("%s %d,%d,%d vs %d %d %d", "Compose did not transform z the same as sequential transformation", z2x, z2y, z2z, z3x, z3y, z3z)
+	}
 }
 
 func checkTransform(
