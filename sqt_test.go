@@ -227,6 +227,41 @@ func TestCompose(t *testing.T) {
 	}
 }
 
+func TestInverse(t *testing.T) {
+	s := NewSQT()
+	s.SetRotation(math.Pi/2, 1, 0, 0)
+	s.SetTranslation(2, 1, -3)
+	s.SetScale(-1)
+	i := s.Compose(s.Inverse())
+	checkTransform(t, "Inverse", "rotation by pi/2 about x, translation by (+2, +1, -3) and scale by *-1", i,
+		[16]float32{
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1,
+		},
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
+	)
+
+	s.SetRotation(3*math.Pi/2, 0, 1, 0)
+	s.SetTranslation(0, 4, 0)
+	s.SetScale(5)
+	i = s.Compose(s.Inverse())
+	checkTransform(t, "Inverse", "rotation by 3pi/2 about y, translation by (0, +4, +0) and scale by *5", i,
+		[16]float32{
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1,
+		},
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
+	)
+}
+
 func checkTransform(
 	t *testing.T, operation, desc string, s *SQT,
 	matrix [16]float32,

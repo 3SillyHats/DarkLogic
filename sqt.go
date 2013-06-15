@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-// SQT represents a transformation consisting of a scaling factor in each axis,
+// SQT represents a transformation consisting of a scaling factor,
 // a rotation and a translation.
 type SQT struct {
 	scale          float64 // scaling factor
@@ -61,7 +61,6 @@ func (s *SQT) Rotate(theta, x, y, z float64) {
 	qz := z * sin
 	qw := math.Cos(theta / 2)
 	s.qx, s.qy, s.qz, s.qw = qmult(qx, qy, qz, qw, s.qx, s.qy, s.qz, s.qw)
-	//s.tx, s.ty, s.tz, _ = qmult(qx, qy, qz, qw, qmult(s.tx, s.ty, s.tz, 0, -qx, -qy, -qz, qw))
 }
 
 // Translate adds another translation to the SQT transformation.
@@ -77,7 +76,7 @@ func (s *SQT) Scale(scale float64) {
 }
 
 // Transform applys the SQT transformation to the input vector (ix, iy, iz),
-// producing the output vector (ox, oy, oz) (equivalent to premultiplying by s.Matrix())
+// producing the output vector (ox, oy, oz) (equivalent to premultiplying by s.Matrix()).
 func (s *SQT) Transform(ix, iy, iz float64) (ox, oy, oz float64) {
 	sx := ix * s.scale
 	sy := iy * s.scale
@@ -92,13 +91,30 @@ func (s *SQT) Transform(ix, iy, iz float64) (ox, oy, oz float64) {
 	return
 }
 
-// Commpose returns the SQT transformation representing the application of first transform, then s
+// Commpose returns the SQT transformation representing the application of first transform, then s.
 func (s *SQT) Compose(transform *SQT) (o *SQT) {
 	o = NewSQT()
 	o.scale = transform.scale * s.scale
 	o.qx, o.qy, o.qz, o.qw = qmult(s.qx, s.qy, s.qz, s.qw, transform.qx, transform.qy, transform.qz, transform.qw)
 	o.tx, o.ty, o.tz = s.Transform(transform.tx, transform.ty, transform.tz)
 	return
+}
+
+// Inverse returns the SQT transformation that undoes this SQT transformation, such that s.Compose(s.Inverse)
+// is the identity transformation.
+func (s *SQT) Inverse() *SQT {
+	sx := s.tx / s.scale
+	sy := s.ty / s.scale
+	sz := s.tz / s.scale
+
+	x, y, z, w := qmult(sx, sy, sz, 0, s.qx, s.qy, s.qz, s.qw)
+	tx, ty, tz, _ := qmult(-s.qx, -s.qy, -s.qz, s.qw, x, y, z, w)
+
+	return &SQT{
+		1 / s.scale,
+		-s.qx, -s.qy, -s.qz, s.qw,
+		-tx, -ty, -tz,
+	}
 }
 
 // Matrix returns a representation of the SQT transformation as an affine
