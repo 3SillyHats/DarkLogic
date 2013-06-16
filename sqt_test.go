@@ -32,6 +32,9 @@ func TestRotate(t *testing.T) {
 		1, 0, 0,
 		0, 0, 1,
 		0, -1, 0,
+		1, 0, 0,
+		0, 0, 1,
+		0, -1, 0,
 	)
 
 	s.SetRotation(math.Pi, 0, 1, 0)
@@ -42,6 +45,9 @@ func TestRotate(t *testing.T) {
 			0, 0, -1, 0,
 			0, 0, 0, 1,
 		},
+		-1, 0, 0,
+		0, 1, 0,
+		0, 0, -1,
 		-1, 0, 0,
 		0, 1, 0,
 		0, 0, -1,
@@ -58,6 +64,9 @@ func TestRotate(t *testing.T) {
 		0, 1, 0,
 		-1, 0, 0,
 		0, 0, 1,
+		0, 1, 0,
+		-1, 0, 0,
+		0, 0, 1,
 	)
 
 	s.Rotate(math.Pi/2, -1, 0, 0)
@@ -68,6 +77,9 @@ func TestRotate(t *testing.T) {
 			-1, 0, 0, 0,
 			0, 0, 0, 1,
 		},
+		0, 0, -1,
+		-1, 0, 0,
+		0, 1, 0,
 		0, 0, -1,
 		-1, 0, 0,
 		0, 1, 0,
@@ -87,6 +99,9 @@ func TestTranslate(t *testing.T) {
 		6, 0, 0,
 		5, 1, 0,
 		5, 0, 1,
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
 	)
 
 	s.SetTranslation(0, 1, -1)
@@ -100,6 +115,9 @@ func TestTranslate(t *testing.T) {
 		1, 1, -1,
 		0, 2, -1,
 		0, 1, 0,
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
 	)
 
 	s.Translate(5, -1, 6)
@@ -113,6 +131,9 @@ func TestTranslate(t *testing.T) {
 		6, 0, 5,
 		5, 1, 5,
 		5, 0, 6,
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
 	)
 }
 
@@ -129,6 +150,9 @@ func TestScale(t *testing.T) {
 		2, 0, 0,
 		0, 2, 0,
 		0, 0, 2,
+		2, 0, 0,
+		0, 2, 0,
+		0, 0, 2,
 	)
 
 	s.SetScale(0.5)
@@ -142,6 +166,9 @@ func TestScale(t *testing.T) {
 		0.5, 0, 0,
 		0, 0.5, 0,
 		0, 0, 0.5,
+		0.5, 0, 0,
+		0, 0.5, 0,
+		0, 0, 0.5,
 	)
 
 	s.Scale(3)
@@ -152,6 +179,9 @@ func TestScale(t *testing.T) {
 			0, 0, 1.5, 0,
 			0, 0, 0, 1,
 		},
+		1.5, 0, 0,
+		0, 1.5, 0,
+		0, 0, 1.5,
 		1.5, 0, 0,
 		0, 1.5, 0,
 		0, 0, 1.5,
@@ -173,6 +203,9 @@ func TestOrder(t *testing.T) {
 		1, 1, -3,
 		2, 1, -4,
 		2, 2, -3,
+		-1, 0, 0,
+		0, 0, -1,
+		0, 1, 0,
 	)
 
 	s.SetRotation(3*math.Pi/2, 0, 1, 0)
@@ -188,6 +221,9 @@ func TestOrder(t *testing.T) {
 		0, 4, 5,
 		0, 9, 0,
 		-5, 4, 0,
+		0, 0, 5,
+		0, 5, 0,
+		-5, 0, 0,
 	)
 }
 
@@ -204,26 +240,48 @@ func TestCompose(t *testing.T) {
 
 	s3 := s2.Compose(s1)
 
-	x1x, x1y, x1z := s1.Transform(1, 0, 0)
-	y1x, y1y, y1z := s1.Transform(0, 1, 0)
-	z1x, z1y, z1z := s1.Transform(0, 0, 1)
+	x1x, x1y, x1z := s1.TransformAbs(1, 0, 0)
+	y1x, y1y, y1z := s1.TransformAbs(0, 1, 0)
+	z1x, z1y, z1z := s1.TransformAbs(0, 0, 1)
 
-	x2x, x2y, x2z := s2.Transform(x1x, x1y, x1z)
-	y2x, y2y, y2z := s2.Transform(y1x, y1y, y1z)
-	z2x, z2y, z2z := s2.Transform(z1x, z1y, z1z)
+	x2x, x2y, x2z := s2.TransformAbs(x1x, x1y, x1z)
+	y2x, y2y, y2z := s2.TransformAbs(y1x, y1y, y1z)
+	z2x, z2y, z2z := s2.TransformAbs(z1x, z1y, z1z)
 
-	x3x, x3y, x3z := s3.Transform(1, 0, 0)
-	y3x, y3y, y3z := s3.Transform(0, 1, 0)
-	z3x, z3y, z3z := s3.Transform(0, 0, 1)
+	x3x, x3y, x3z := s3.TransformAbs(1, 0, 0)
+	y3x, y3y, y3z := s3.TransformAbs(0, 1, 0)
+	z3x, z3y, z3z := s3.TransformAbs(0, 0, 1)
 
 	if math.Abs(x3x-x2x) > 1e-14 || math.Abs(x3y-x2y) > 1e-14 || math.Abs(x3z-x2z) > 1e-14 {
-		t.Errorf("%s %d,%d,%d", "Compose did not transform x the same as sequential transformation", math.Abs(x2x-x3x), math.Abs(x2y-x3y), math.Abs(x2z-x3z))
+		t.Errorf("%s", "Compose did not absolute transform x the same as sequential transformation")
 	}
 	if math.Abs(y3x-y2x) > 1e-14 || math.Abs(y3y-y2y) > 1e-14 || math.Abs(y3z-y2z) > 1e-14 {
-		t.Errorf("%s %d,%d,%d", "Compose did not transform y the same as sequential transformation", math.Abs(y2x-y3x), math.Abs(y2y-y3y), math.Abs(y2z-y3z))
+		t.Errorf("%s", "Compose did not absolute transform y the same as sequential transformation")
 	}
 	if math.Abs(z3x-z2x) > 1e-14 || math.Abs(z3y-z2y) > 1e-14 || math.Abs(z3z-z2z) > 1e-14 {
-		t.Errorf("%s %d,%d,%d vs %d %d %d", "Compose did not transform z the same as sequential transformation", z2x, z2y, z2z, z3x, z3y, z3z)
+		t.Errorf("%s", "Compose did not absolute transform z the same as sequential transformation")
+	}
+
+	x1x, x1y, x1z = s1.TransformRel(1, 0, 0)
+	y1x, y1y, y1z = s1.TransformRel(0, 1, 0)
+	z1x, z1y, z1z = s1.TransformRel(0, 0, 1)
+
+	x2x, x2y, x2z = s2.TransformRel(x1x, x1y, x1z)
+	y2x, y2y, y2z = s2.TransformRel(y1x, y1y, y1z)
+	z2x, z2y, z2z = s2.TransformRel(z1x, z1y, z1z)
+
+	x3x, x3y, x3z = s3.TransformRel(1, 0, 0)
+	y3x, y3y, y3z = s3.TransformRel(0, 1, 0)
+	z3x, z3y, z3z = s3.TransformRel(0, 0, 1)
+
+	if math.Abs(x3x-x2x) > 1e-14 || math.Abs(x3y-x2y) > 1e-14 || math.Abs(x3z-x2z) > 1e-14 {
+		t.Errorf("%s", "Compose did not relative transform x the same as sequential transformation")
+	}
+	if math.Abs(y3x-y2x) > 1e-14 || math.Abs(y3y-y2y) > 1e-14 || math.Abs(y3z-y2z) > 1e-14 {
+		t.Errorf("%s", "Compose did not relative transform y the same as sequential transformation")
+	}
+	if math.Abs(z3x-z2x) > 1e-14 || math.Abs(z3y-z2y) > 1e-14 || math.Abs(z3z-z2z) > 1e-14 {
+		t.Errorf("%s", "Compose did not relative transform z the same as sequential transformation")
 	}
 }
 
@@ -243,6 +301,9 @@ func TestInverse(t *testing.T) {
 		1, 0, 0,
 		0, 1, 0,
 		0, 0, 1,
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
 	)
 
 	s.SetRotation(3*math.Pi/2, 0, 1, 0)
@@ -259,6 +320,9 @@ func TestInverse(t *testing.T) {
 		1, 0, 0,
 		0, 1, 0,
 		0, 0, 1,
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
 	)
 }
 
@@ -268,6 +332,9 @@ func checkTransform(
 	xpx, xpy, xpz float64,
 	ypx, ypy, ypz float64,
 	zpx, zpy, zpz float64,
+	xpxr, xpyr, xpzr float64,
+	ypxr, ypyr, ypzr float64,
+	zpxr, zpyr, zpzr float64,
 ) {
 	m := s.Matrix()
 
@@ -297,18 +364,33 @@ func checkTransform(
 		t.Error(operation + " did not return expected transformation for z for " + desc)
 	}
 
-	xppx, xppy, xppz := s.Transform(1, 0, 0)
+	xppx, xppy, xppz := s.TransformAbs(1, 0, 0)
 	if math.Abs(xppx-xpx) > 1e-15 || math.Abs(xppy-xpy) > 1e-15 || math.Abs(xppz-xpz) > 1e-15 {
 		t.Error(operation + " did not transform x as expected for " + desc)
 	}
 
-	yppx, yppy, yppz := s.Transform(0, 1, 0)
+	yppx, yppy, yppz := s.TransformAbs(0, 1, 0)
 	if math.Abs(yppx-ypx) > 1e-15 || math.Abs(yppy-ypy) > 1e-15 || math.Abs(yppz-ypz) > 1e-15 {
 		t.Error(operation + " did not transform y as expected for " + desc)
 	}
 
-	zppx, zppy, zppz := s.Transform(0, 0, 1)
+	zppx, zppy, zppz := s.TransformAbs(0, 0, 1)
 	if math.Abs(zppx-zpx) > 1e-15 || math.Abs(zppy-zpy) > 1e-15 || math.Abs(zppz-zpz) > 1e-15 {
+		t.Error(operation + " did not transform z as expected for " + desc)
+	}
+
+	xppx, xppy, xppz = s.TransformRel(1, 0, 0)
+	if math.Abs(xppx-xpxr) > 1e-15 || math.Abs(xppy-xpyr) > 1e-15 || math.Abs(xppz-xpzr) > 1e-15 {
+		t.Error(operation + " did not transform x as expected for " + desc)
+	}
+
+	yppx, yppy, yppz = s.TransformRel(0, 1, 0)
+	if math.Abs(yppx-ypxr) > 1e-15 || math.Abs(yppy-ypyr) > 1e-15 || math.Abs(yppz-ypzr) > 1e-15 {
+		t.Error(operation + " did not transform y as expected for " + desc)
+	}
+
+	zppx, zppy, zppz = s.TransformRel(0, 0, 1)
+	if math.Abs(zppx-zpxr) > 1e-15 || math.Abs(zppy-zpyr) > 1e-15 || math.Abs(zppz-zpzr) > 1e-15 {
 		t.Error(operation + " did not transform z as expected for " + desc)
 	}
 }

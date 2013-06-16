@@ -75,15 +75,22 @@ func (s *SQT) Scale(scale float64) {
 	s.scale *= scale
 }
 
-// Transform applys the SQT transformation to the input vector (ix, iy, iz),
-// producing the output vector (ox, oy, oz) (equivalent to premultiplying by s.Matrix()).
-func (s *SQT) Transform(ix, iy, iz float64) (ox, oy, oz float64) {
+// TransformRel applys the SQT transformation without the tranlation to the input vector (ix, iy, iz),
+// producing the output vector (ox, oy, oz) (equivalent to premultiplying (ix, iy, iz, 0) by s.Matrix()).
+func (s *SQT) TransformRel(ix, iy, iz float64) (ox, oy, oz float64) {
 	sx := ix * s.scale
 	sy := iy * s.scale
 	sz := iz * s.scale
 
 	x, y, z, w := qmult(sx, sy, sz, 0, -s.qx, -s.qy, -s.qz, s.qw)
-	rx, ry, rz, _ := qmult(s.qx, s.qy, s.qz, s.qw, x, y, z, w)
+	ox, oy, oz, _ = qmult(s.qx, s.qy, s.qz, s.qw, x, y, z, w)
+	return
+}
+
+// TransformRel applys the SQT transformation to the input vector (ix, iy, iz),
+// producing the output vector (ox, oy, oz) (equivalent to premultiplying (ix, iy, iz, 1) by s.Matrix()).
+func (s *SQT) TransformAbs(ix, iy, iz float64) (ox, oy, oz float64) {
+	rx, ry, rz := s.TransformRel(ix, iy, iz)
 
 	ox = rx + s.tx
 	oy = ry + s.ty
@@ -96,7 +103,7 @@ func (s *SQT) Compose(transform *SQT) (o *SQT) {
 	o = NewSQT()
 	o.scale = transform.scale * s.scale
 	o.qx, o.qy, o.qz, o.qw = qmult(s.qx, s.qy, s.qz, s.qw, transform.qx, transform.qy, transform.qz, transform.qw)
-	o.tx, o.ty, o.tz = s.Transform(transform.tx, transform.ty, transform.tz)
+	o.tx, o.ty, o.tz = s.TransformAbs(transform.tx, transform.ty, transform.tz)
 	return
 }
 
