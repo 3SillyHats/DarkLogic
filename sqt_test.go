@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestNew(t *testing.T) {
+func TestNewSQT(t *testing.T) {
 	s := NewSQT()
 	m := s.Matrix()
 	identity := [16]float32{
